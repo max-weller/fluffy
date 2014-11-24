@@ -2,7 +2,10 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+
 var VERSION = Math.floor(Math.random()*1000);
+var port = 4242;
+
 
 app.get('/', function(req, res){
   res.sendfile('index.html');
@@ -14,11 +17,15 @@ app.get('/fluffy.gif', function(req, res){
   res.sendfile('fluffy.gif');
 });
 
+var clients = {};
 
 io.on('connection', function(socket){
-  console.log('a user connected');
-  io.sockets.emit('newuser','');
+  var address = socket.handshake.address;
+  clients[address] = { socket: socket, addr: address };
+  console.log('a user connected', address);
+  io.sockets.emit('newuser', address);
   socket.emit('restart', VERSION);
+  
   socket.on('ping', function(pong) {
 	pong();
   });
@@ -27,8 +34,8 @@ io.on('connection', function(socket){
   });
 });
 
-http.listen(4242, function(){
-  console.log('listening on *:3009');
+http.listen(port, function(){
+  console.log('listening on *:'+port);
 });
 
 
