@@ -1,7 +1,11 @@
 Pink fluffy unicorns!
 ======
 
-Plays the Pink Fluffy Unicorns song in multiple browsers in sync respecting the network latency.
+Plays the Pink Fluffy Unicorns song ...
+
+* in sync
+* on multiple computers
+* respecting the network latency!
 
 
 

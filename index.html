@@ -39,7 +39,7 @@
         });
   });
   socket.on("newuser", function(info) {
-        $("#log").append("new user "+info+"\n");
+        $("#log").append("user "+info+"\n");
   });
   socket.on("restart", function(ver) {
         if(!curver) { curver = ver; return; } 

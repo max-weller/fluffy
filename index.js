@@ -20,12 +20,15 @@ app.get('/fluffy.gif', function(req, res){
 var clients = {};
 
 io.on('connection', function(socket){
-  var address = socket.handshake.address;
-  clients[address] = { socket: socket, addr: address };
-  console.log('a user connected', address);
-  io.sockets.emit('newuser', address);
+  var address = socket.handshake.address, addr=address+":"+socket.request.connection.remotePort;
+  clients[addr] = { socket: socket, addr: addr };
+  console.log('a user connected', addr);
+  io.sockets.emit('newuser', address+" online | "+Object.keys(clients).length+" users online");
   socket.emit('restart', VERSION);
-  
+  socket.on('disconnect', function() {
+    delete clients[address];
+    io.sockets.emit('newuser', address+" disconnect | "+Object.keys(clients).length+" users online");
+  });
   socket.on('ping', function(pong) {
 	pong();
   });
@@ -41,6 +44,7 @@ http.listen(port, function(){
 
 setInterval(function() {
 	io.sockets.emit('color', getRandomColor());
+        
 }, 10000);
 
 function getRandomColor() {
