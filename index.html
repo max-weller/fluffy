@@ -21,6 +21,8 @@
 
 <pre id="log"></pre>
 
+<a href="https://github.com/max-weller/fluffy">open source</a>
+
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -32,7 +34,7 @@
         $("#log").append("connected\n");
         var start = +new Date();
         socket.emit("ping", function(time) {
-          pingdiff = ((+new Date())-start)/1000;
+          pingdiff = ((+new Date())-start)/2000;
           $("#log").append("Ping: "+pingdiff+" sek\n");
         });
   });
@@ -51,7 +53,7 @@
         $("body").css("background", color);
   });
   socket.on("play", function(pos) {
-	media.currentTime = pos+pingdiff;
+	media.currentTime = pos-pingdiff;
 	media.play();
   });
   socket.on("gettime", function(cb) {
