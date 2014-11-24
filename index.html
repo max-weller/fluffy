@@ -4,6 +4,7 @@
 
 </head><body>
 
+<div id="onlinec" style="float:right; font-size: 30pt; font-weight:bold;"></div>
 
     <audio id="sound" src="/fluffy.ogg" controls loop>
       <p>Your browser does not support the audio element.</p>
@@ -38,8 +39,9 @@
           $("#log").append("Ping: "+pingdiff+" sek\n");
         });
   });
-  socket.on("newuser", function(info) {
+  socket.on("newuser", function(info,counter) {
         $("#log").append("user "+info+"\n");
+        $("#onlinec").html(counter);
   });
   socket.on("restart", function(ver) {
         if(!curver) { curver = ver; return; } 

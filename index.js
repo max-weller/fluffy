@@ -18,16 +18,19 @@ app.get('/fluffy.gif', function(req, res){
 });
 
 var clients = {};
+function getCount() {
+  return Object.keys(clients).length;
+}
 
 io.on('connection', function(socket){
   var address = socket.handshake.address, addr=address+":"+socket.request.connection.remotePort;
   clients[addr] = { socket: socket, addr: addr };
   console.log('a user connected', addr);
-  io.sockets.emit('newuser', address+" online | "+Object.keys(clients).length+" users online");
+  io.sockets.emit('newuser', address+" online | "+getCount()+" users online", getCount());
   socket.emit('restart', VERSION);
   socket.on('disconnect', function() {
     delete clients[address];
-    io.sockets.emit('newuser', address+" disconnect | "+Object.keys(clients).length+" users online");
+    io.sockets.emit('newuser', address+" disconnect | "+getCount()+" users online", getCount());
   });
   socket.on('ping', function(pong) {
 	pong();
