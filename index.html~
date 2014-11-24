@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head>
+
+
+</head><body>
+
+
+    <audio id="sound" src="/fluffy.ogg" controls loop>
+      <p>Your browser does not support the audio element.</p>
+    </audio>
+
+<hr>
+
+
+<input type="button" value=" go go go " id="go">
+
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var media = $("#sound")[0];
+  var socket = io();
+  socket.on("restart", function() {
+	location.reload();
+  });
+  socket.on("play", function(pos) {
+	media.currentTime = pos;
+	media.play();
+  });
+  socket.on("gettime", function(cb) {
+	cb(media.currentTime);
+  });
+  $("#go").click(function() {
+    socket.emit("playall", media.currentTime);
+  });
+</script>
+</body></html>

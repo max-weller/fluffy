@@ -1,0 +1,34 @@
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+
+app.get('/', function(req, res){
+  res.sendfile('index.html');
+});
+app.get('/fluffy.ogg', function(req, res){
+  res.sendfile('fluff.ogg');
+});
+
+
+io.on('connection', function(socket){
+  console.log('a user connected');
+  socket.on('ping', function(pong) {
+	pong();
+  });
+  socket.on('playall', function(start) {
+	io.sockets.emit('play', start);
+  });
+});
+
+http.listen(4242, function(){
+  console.log('listening on *:3009');
+});
+
+
+setInterval(function() {
+	
+}, 3000);
+
+
+
