@@ -24,19 +24,29 @@ function getCount() {
 
 io.on('connection', function(socket){
   var address = socket.handshake.address, addr=address+":"+socket.request.connection.remotePort;
-  clients[addr] = { socket: socket, addr: addr };
-  console.log('a user connected', addr);
+  clients[addr] = { socket: socket, addr: addr, nick: address };
+  console.log('* a user connected', addr);
   io.sockets.emit('newuser', address+" online | "+getCount()+" users online", getCount());
   socket.emit('restart', VERSION);
   socket.on('disconnect', function() {
     delete clients[address];
     io.sockets.emit('newuser', address+" disconnect | "+getCount()+" users online", getCount());
+    console.log('* disconnect '+addr);
   });
   socket.on('ping', function(pong) {
 	pong();
   });
   socket.on('playall', function(start) {
 	io.sockets.emit('play', start);
+  });
+  socket.on('newnick', function(nick) {
+    nick = nick.replace(/[^a-zA-Z0-9_.+*! -]/g, "");
+    io.sockets.emit('chat', '* '+clients[addr].nick+' now known as '+nick);
+    clients[addr].nick = nick;
+  });
+  socket.on('chat', function(msg) {
+    io.sockets.emit('chat', clients[addr].nick+': '+msg);
+    console.log('chat '+clients[addr].nick+': '+msg);
   });
 });
 

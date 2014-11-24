@@ -11,14 +11,18 @@
     </audio>
 
 <hr>
+<div style="float:right; ">
+Nick: <input type="text" id="nick">
+</div>
 
-
-<input type="button" value=" go go go " id="go">
+<input type="button" value=" sync! " id="go">
 
 <hr>
 
 <img src="fluffy.gif" style="float:left;height:500px;margin:20px;">
 <hr>
+
+<textarea id="msg" style="width: 200px; height: 40px;"></textarea>
 
 <pre id="log"></pre>
 
@@ -31,17 +35,30 @@
   var socket = io();
   var pingdiff = 0;
   var curver = "";
+  function log(x) {
+       $("#log").prepend(x+"\n");
+  }
   socket.on("connect", function() {
-        $("#log").append("connected\n");
+        log("connected");
         var start = +new Date();
         socket.emit("ping", function(time) {
           pingdiff = ((+new Date())-start)/2000;
-          $("#log").append("Ping: "+pingdiff+" sek\n");
+          log("Ping: "+pingdiff+" sek");
         });
   });
+  socket.on("setnick", function(newnick,force) {
+        $("#nick").val(newnick);
+        if (!force && window.localStorage && window.localStorage.nickname) {
+          $("#nick").val(window.localStorage.nickname);
+          nickchange();
+        }
+  });
   socket.on("newuser", function(info,counter) {
-        $("#log").append("user "+info+"\n");
+        log("user "+info);
         $("#onlinec").html(counter);
+  });
+  socket.on("chat", function(msg) {
+        log(msg.replace(/</g, "&lt;"));
   });
   socket.on("restart", function(ver) {
         if(!curver) { curver = ver; return; } 
@@ -62,7 +79,24 @@
 	cb(media.currentTime+pingdiff);
   });
   $("#go").click(function() {
-    socket.emit("playall", media.currentTime+pingdiff);
+        socket.emit("playall", media.currentTime+pingdiff);
   });
+  $("#msg").keyup(function(e) {
+    if (e.which==13) {
+      socket.emit("chat", $("#msg").val());
+      $("#msg").val("");
+    }
+  });
+  var nicktimer=false;
+  $("#nick").keypress(function() {
+        if (nicktimer) clearTimeout(nicktimer);
+        nicktimer=setTimeout(nickchange,1000);
+  });
+  function nickchange() {
+        var newnick = $("#nick").val();
+        if(!newnick) return;
+        socket.emit("newnick", newnick);
+        window.localStorage.nickname = newnick;
+  }
 </script>
 </body></html>
