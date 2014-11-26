@@ -21,15 +21,20 @@ var clients = {};
 function getCount() {
   return Object.keys(clients).length;
 }
-
+function onlineNames() {
+  var names=[];
+  for(var k in clients) names.push(clients[k].nick);
+  return names.join(", ");
+}
 io.on('connection', function(socket){
   var address = socket.handshake.address, addr=address+":"+socket.request.connection.remotePort;
   clients[addr] = { socket: socket, addr: addr, nick: address };
   console.log('* a user connected', addr);
   io.sockets.emit('newuser', address+" online | "+getCount()+" users online", getCount());
   socket.emit('restart', VERSION);
+  socket.emit('chat', "Online users: "+onlineNames());
   socket.on('disconnect', function() {
-    delete clients[address];
+    delete clients[addr];
     io.sockets.emit('newuser', address+" disconnect | "+getCount()+" users online", getCount());
     console.log('* disconnect '+addr);
   });
@@ -43,6 +48,12 @@ io.on('connection', function(socket){
     nick = nick.replace(/[^a-zA-Z0-9_.+*! -]/g, "");
     io.sockets.emit('chat', '* '+clients[addr].nick+' now known as '+nick);
     clients[addr].nick = nick;
+  });
+  socket.on('seturl', function(url) {
+    io.sockets.emit('seturl', url);
+    setTimeout(function() {
+      io.sockets.emit('play',0);
+    }, 1800);
   });
   socket.on('chat', function(msg) {
     io.sockets.emit('chat', clients[addr].nick+': '+msg);

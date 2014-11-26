@@ -1,7 +1,11 @@
 <!doctype html>
 <html><head>
+<title>fluffysync</title>
+<style>
+.box { clear:both;border: 1px solid black; padding: 10px; }
+pre { white-space: pre-wrap; }
 
-
+</style>
 </head><body>
 
 <div id="onlinec" style="float:right; font-size: 30pt; font-weight:bold;"></div>
@@ -10,23 +14,29 @@
       <p>Your browser does not support the audio element.</p>
     </audio>
 
-<hr>
+<div class="box">
 <div style="float:right; ">
 Nick: <input type="text" id="nick">
 </div>
 
 <input type="button" value=" sync! " id="go">
 
-<hr>
+</div>
 
-<img src="fluffy.gif" style="float:left;height:500px;margin:20px;">
-<hr>
+<img src="fluffy.gif" style="float:left;height:500px;margin:20px 20px 20px 0;">
+<br>
 
 <textarea id="msg" style="width: 200px; height: 40px;"></textarea>
 
 <pre id="log"></pre>
 
-<a href="https://github.com/max-weller/fluffy">open source</a>
+
+<div class="box">
+  <input type="button" value="set media URL:" id="seturl"> <input type="text" size=40 id="mediaurl">
+  <input type="button" value="reset" id="reseturl">
+</div>
+
+<br><b>fluffysync</b> &bull; (c)Max Weller 2014 &bull; <a href="https://github.com/max-weller/fluffy">open source</a> &bull; MIT license &bull; song and gif (c)by their respective owners
 
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script src="/socket.io/socket.io.js"></script>
@@ -52,6 +62,16 @@ Nick: <input type="text" id="nick">
           $("#nick").val(window.localStorage.nickname);
           nickchange();
         }
+  });
+  socket.on("seturl", function(url) {
+        log("now on URL "+url);
+        media.src = url;
+  });
+  $("#seturl").click(function() {
+        socket.emit("seturl", $("#mediaurl").val());
+  });
+  $("#reseturl").click(function() {
+        socket.emit("seturl", "/fluffy.ogg");
   });
   socket.on("newuser", function(info,counter) {
         log("user "+info);
@@ -98,5 +118,11 @@ Nick: <input type="text" id="nick">
         socket.emit("newnick", newnick);
         window.localStorage.nickname = newnick;
   }
+  function resizer() {
+        var wid = $(window).width();
+        $("#msg").css("width", wid - $("img").width() - 80 + "px");
+  }
+  window.onload = resizer;
+  window.onresize = resizer;
 </script>
 </body></html>
