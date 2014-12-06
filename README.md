@@ -1,7 +1,7 @@
 Pink fluffy unicorns!
 ======
 
-Plays the Pink Fluffy Unicorns song ...
+Plays the [wonderful Pink Fluffy Unicorns song by Andrew Huang](https://www.youtube.com/watch?v=eWM2joNb9NE) ...
 
 * in sync
 * on multiple computers

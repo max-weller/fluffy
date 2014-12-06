@@ -50,12 +50,16 @@ Nick: <input type="text" id="nick">
   }
   socket.on("connect", function() {
         log("connected");
+        calcping();
+  });
+  setInterval(calcping, 30000);
+  function calcping() {
         var start = +new Date();
         socket.emit("ping", function(time) {
           pingdiff = ((+new Date())-start)/2000;
           log("Ping: "+pingdiff+" sek");
         });
-  });
+  }
   socket.on("setnick", function(newnick,force) {
         $("#nick").val(newnick);
         if (!force && window.localStorage && window.localStorage.nickname) {

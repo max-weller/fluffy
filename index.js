@@ -4,9 +4,17 @@ var io = require('socket.io')(http);
 
 
 var VERSION = Math.floor(Math.random()*1000);
+
+var allowed_host = 'fluffy.luelistan.net:4242';
 var port = 4242;
 
-
+app.use(function(req,res,next) {
+  if (req.headers.host != allowed_host) {
+    res.redirect('http://' + allowed_host);
+  } else {
+    next();
+  }
+});
 app.get('/', function(req, res){
   res.sendfile('index.html');
 });
@@ -56,8 +64,24 @@ io.on('connection', function(socket){
     }, 1800);
   });
   socket.on('chat', function(msg) {
-    io.sockets.emit('chat', clients[addr].nick+': '+msg);
-    console.log('chat '+clients[addr].nick+': '+msg);
+    try {
+      if(msg.charAt(0)=="/") {
+        var m=msg.split(/ /);
+        switch (m[0]) {
+        case "/l":
+          socket.emit('chat', "Online users: "+onlineNames());
+          break;
+        case "/vol":
+          clients[m[1]].socket.emit('volume', parseFloat(m[2]));
+          break;
+        }
+      } else {
+        io.sockets.emit('chat', clients[addr].nick+': '+msg);
+        console.log('chat '+clients[addr].nick+': '+msg);
+      }
+    } catch(Ex) {
+      console.log(Ex);
+    }
   });
 });
 
